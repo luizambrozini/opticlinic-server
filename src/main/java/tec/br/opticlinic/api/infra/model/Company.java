@@ -6,10 +6,9 @@ import lombok.Setter;
 import java.time.OffsetDateTime;
 
 @Getter @Setter
-public class User {
+public class Company {
     private Long id;
-    private String username;
-    private String password;
-    private Boolean enabled;
+    private String name;
+    private String cnpj;
     private OffsetDateTime created_at;
 }

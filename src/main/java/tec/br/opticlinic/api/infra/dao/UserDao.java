@@ -25,10 +25,9 @@ public class UserDao {
         User u = new User();
         u.setId(rs.getLong("id"));
         u.setUsername(rs.getString("username"));
-        u.setFullName(rs.getString("full_name"));
-        u.setEmail(rs.getString("email"));
+        u.setPassword(rs.getString("password"));
         u.setEnabled(rs.getBoolean("enabled"));
-        u.setCreatedAt(rs.getObject("created_at", java.time.OffsetDateTime.class));
+        u.setCreated_at(rs.getObject("created_at", java.time.OffsetDateTime.class));
         return u;
     }
 
@@ -51,16 +50,16 @@ public class UserDao {
 
     public Long insert(User u) {
         String sql = """
-            INSERT INTO app_user (username, full_name, email, enabled)
-            VALUES (?, ?, ?, COALESCE(?, TRUE))
+            INSERT INTO app_user (username, password, enabled)
+            VALUES (?, ?, COALESCE(?, TRUE))
             """;
 
         KeyHolder kh = new GeneratedKeyHolder();
         jdbc.update(con -> {
             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, u.getUsername());
-            ps.setString(2, u.getFullName());
-            ps.setString(3, u.getEmail());
+            ps.setString(2, u.getPassword());
+            ps.setBoolean(3, u.getEnabled());
             if (u.getEnabled() == null) ps.setObject(4, null);
             else ps.setBoolean(4, u.getEnabled());
             return ps;
@@ -73,15 +72,15 @@ public class UserDao {
     public int update(User u) {
         String sql = """
             UPDATE app_user
-               SET full_name = ?, email = ?, enabled = COALESCE(?, enabled)
-             WHERE username = ?
+               SET username = ?, password = ?, enabled = COALESCE(?, enabled)
+             WHERE id = ?
             """;
-        return jdbc.update(sql, u.getFullName(), u.getEmail(), u.getEnabled(), u.getUsername());
+        return jdbc.update(sql, u.getUsername(), u.getPassword(), u.getEnabled(), u.getId());
     }
 
-    public int deleteByUsername(String username) {
-        String sql = "DELETE FROM app_user WHERE username = ?";
-        return jdbc.update(sql, username);
+    public int deleteByUsername(Long id) {
+        String sql = "DELETE FROM app_user WHERE id = ?";
+        return jdbc.update(sql, id);
     }
 
     public boolean existsByUsername(String username) {

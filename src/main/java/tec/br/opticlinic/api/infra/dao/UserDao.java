@@ -1,16 +1,14 @@
 package tec.br.opticlinic.api.infra.dao;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import tec.br.opticlinic.api.infra.model.User;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
+import java.time.OffsetDateTime;
 import java.util.*;
 
 @Repository
@@ -21,66 +19,73 @@ public class UserDao {
         this.jdbc = jdbc;
     }
 
-    private User map(ResultSet rs, int rowNum) throws SQLException {
+    private final RowMapper<User> mapper = (rs, rowNum) -> {
         User u = new User();
         u.setId(rs.getLong("id"));
         u.setUsername(rs.getString("username"));
         u.setPassword(rs.getString("password"));
         u.setEnabled(rs.getBoolean("enabled"));
-        u.setCreated_at(rs.getObject("created_at", java.time.OffsetDateTime.class));
+        // Se a coluna for TIMESTAMP WITH TIME ZONE (timestamptz):
+        u.setCreatedAt(rs.getObject("created_at", OffsetDateTime.class));
+        // Se for TIMESTAMP sem TZ, use: rs.getTimestamp("created_at").toLocalDateTime()
         return u;
-    }
+    };
 
     public Optional<User> findById(Long id) {
-        String sql = "SELECT * FROM app_user WHERE id = ?";
-        List<User> list = jdbc.query(sql, this::map, id);
-        return list.stream().findFirst();
+        String sql = "SELECT id, username, password, enabled, created_at FROM app_user WHERE id = ?";
+        return jdbc.query(sql, mapper, id).stream().findFirst();
     }
 
     public Optional<User> findByUsername(String username) {
-        String sql = "SELECT * FROM app_user WHERE username = ?";
-        List<User> list = jdbc.query(sql, this::map, username);
-        return list.stream().findFirst();
+        String sql = "SELECT id, username, password, enabled, created_at FROM app_user WHERE username = ?";
+        return jdbc.query(sql, mapper, username).stream().findFirst();
     }
 
     public List<User> findAll(int limit, int offset) {
-        String sql = "SELECT * FROM app_user ORDER BY id DESC LIMIT ? OFFSET ?";
-        return jdbc.query(sql, this::map, limit, offset);
+        String sql = """
+            SELECT id, username, password, enabled, created_at
+              FROM app_user
+             ORDER BY id DESC
+             LIMIT ? OFFSET ?
+        """;
+        return jdbc.query(sql, mapper, limit, offset);
     }
 
+    // ============================
+    // Opção A) INSERT com RETURNING (Postgres)
+    // ============================
     public Long insert(User u) {
         String sql = """
             INSERT INTO app_user (username, password, enabled)
             VALUES (?, ?, COALESCE(?, TRUE))
-            """;
-
-        KeyHolder kh = new GeneratedKeyHolder();
-        jdbc.update(con -> {
-            PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, u.getUsername());
-            ps.setString(2, u.getPassword());
-            ps.setBoolean(3, u.getEnabled());
-            if (u.getEnabled() == null) ps.setObject(4, null);
-            else ps.setBoolean(4, u.getEnabled());
-            return ps;
-        }, kh);
-
-        Number key = kh.getKey();
-        return key != null ? key.longValue() : null;
+            RETURNING id
+        """;
+        // 3 parâmetros: username, password, enabled
+        return jdbc.queryForObject(sql, Long.class, u.getUsername(), u.getPassword(), u.getEnabled());
     }
 
     public int update(User u) {
+        // Se não quiser permitir troca de username, remova-o do SET
         String sql = """
             UPDATE app_user
-               SET username = ?, password = ?, enabled = COALESCE(?, enabled)
+               SET username = ?,
+                   password = ?,
+                   enabled  = COALESCE(?, enabled)
              WHERE id = ?
-            """;
+        """;
         return jdbc.update(sql, u.getUsername(), u.getPassword(), u.getEnabled(), u.getId());
     }
 
-    public int deleteByUsername(Long id) {
+    // Corrigido: nome e semântica alinham
+    public int deleteById(Long id) {
         String sql = "DELETE FROM app_user WHERE id = ?";
         return jdbc.update(sql, id);
+    }
+
+    // Se quiser deletar por username, use este:
+    public int deleteByUsername(String username) {
+        String sql = "DELETE FROM app_user WHERE username = ?";
+        return jdbc.update(sql, username);
     }
 
     public boolean existsByUsername(String username) {

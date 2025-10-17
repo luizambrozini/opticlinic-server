@@ -1,7 +1,14 @@
 package tec.br.opticlinic.api.config;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import tec.br.opticlinic.api.security.JwtAuthFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +24,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 
 @Configuration
 public class SecurityConfig {
@@ -38,47 +50,57 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService(JdbcTemplate jdbc) {
+
+        record DbUser(String username, String password, boolean enabled) {}
+
+        RowMapper<DbUser> userRowMapper = (rs, rn) ->
+                new DbUser(
+                        rs.getString("username"),
+                        rs.getString("password"),
+                        rs.getBoolean("enabled")
+                );
+
+        RowMapper<GrantedAuthority> authRowMapper = (rs, rn) ->
+                new SimpleGrantedAuthority(rs.getString("authority"));
+
         return username -> {
-            // 1) Carrega dados do usuário
-            record DbUser(String username, String password, boolean enabled) {}
+            // 1) Usuário
             DbUser dbUser;
             try {
                 dbUser = jdbc.queryForObject(
                         "SELECT username, password, enabled FROM app_user WHERE username = ?",
-                        (rs, rn) -> new DbUser(
-                                rs.getString("username"),
-                                rs.getString("password"),
-                                rs.getBoolean("enabled")
-                        ),
+                        userRowMapper,
                         username
                 );
-            } catch (org.springframework.dao.EmptyResultDataAccessException e) {
-                throw new org.springframework.security.core.userdetails.UsernameNotFoundException("Usuário não encontrado: " + username);
+            } catch (EmptyResultDataAccessException e) {
+                throw new UsernameNotFoundException("Usuário não encontrado: " + username);
             }
 
-            // 2) Carrega authorities (roles)
-            java.util.List<org.springframework.security.core.GrantedAuthority> auths =
-                    jdbc.query(
-                            "SELECT authority FROM app_user_authority WHERE username = ?",
-                            (rs, rn) -> new org.springframework.security.core.authority.SimpleGrantedAuthority(rs.getString("authority")),
-                            username
-                    );
+            // 2) Authorities (roles)
+            List<GrantedAuthority> authsList = jdbc.query(
+                    "SELECT DISTINCT authority FROM app_user_authority WHERE username = ? ORDER BY authority",
+                    authRowMapper,
+                    username
+            );
 
-            // 3) Monta UserDetails (senha já deve estar codificada no banco)
-            assert dbUser != null;
-            return org.springframework.security.core.userdetails.User
-                    .withUsername(dbUser.username())
-                    .password(dbUser.password())
-                    .authorities(auths)
+            // opcional: transformar em Set imutável
+            Collection<GrantedAuthority> authorities = Collections.unmodifiableSet(new HashSet<>(authsList));
+
+            // 3) Monta o UserDetails
+            return User.withUsername(dbUser.username())
+                    .password(dbUser.password()) // já deve vir com {bcrypt}... se usar DelegatingPasswordEncoder
+                    .authorities(authorities)
                     .disabled(!dbUser.enabled())
+                    // .accountLocked(false).accountExpired(false).credentialsExpired(false) // caso queira explicitar
                     .build();
         };
     }
 
 
+
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
     @Bean

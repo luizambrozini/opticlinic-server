@@ -2,14 +2,11 @@ package tec.br.opticlinic.api.infra.model;
 
 import lombok.Getter;
 import lombok.Setter;
-import java.time.OffsetDateTime;
 
 @Getter
 @Setter
-public class User {
+public class UserAuthority {
     private Long id;
     private String username;
-    private String password;
-    private Boolean enabled;
-    private OffsetDateTime createdAt;
+    private String authority;
 }

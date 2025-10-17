@@ -6,9 +6,11 @@ import java.time.OffsetDateTime;
 
 @Getter
 @Setter
-public class Company {
+public class People {
     private Long id;
     private String name;
-    private String cnpj;
+    private String cpf;
+    private String email;
     private OffsetDateTime createdAt;
+    private Long companyId; // FK -> app_company.id
 }

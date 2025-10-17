@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tec.br.opticlinic.api.infra.dao.CompanyDao;
 import tec.br.opticlinic.api.infra.model.Company;
+import tec.br.opticlinic.api.web.error.ErrorCode;
+import tec.br.opticlinic.api.web.error.NotFoundException;
 
 @Service
 @RequiredArgsConstructor
@@ -14,7 +16,7 @@ public class UpdateCompanyDataService {
     public void execute(String name, String cnpj) throws Exception {
         var companyOptional = companyDao.findById(1L);
         if (companyOptional.isEmpty()) {
-            throw new Exception("Company not found!");
+            throw new NotFoundException(ErrorCode.COMPANY_NOT_FOUND, "Empresa (id=1) não encontrada.");
         }
 
         Company company = companyOptional.get();

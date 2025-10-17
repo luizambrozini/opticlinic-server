@@ -1,0 +1,16 @@
+package tec.br.opticlinic.api.web.error;
+
+public enum ErrorCode {
+    COMPANY_NOT_FOUND,
+    USER_NOT_FOUND,
+    USER_ALREADY_EXISTS,
+    INVALID_CNPJ,
+    VALIDATION_ERROR,
+    CONSTRAINT_VIOLATION,
+    AUTHENTICATION_FAILED,
+    ACCESS_DENIED,
+    CONFLICT,
+    BAD_REQUEST,
+    UNPROCESSABLE_ENTITY,
+    INTERNAL_ERROR
+}

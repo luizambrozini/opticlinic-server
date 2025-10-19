@@ -1,8 +1,12 @@
 package tec.br.opticlinic.api.infra.dao;
 
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import tec.br.opticlinic.api.application.util.StringUtilService;
 import tec.br.opticlinic.api.infra.model.Company;
 
 import java.time.OffsetDateTime;
@@ -10,13 +14,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
+@AllArgsConstructor
+@Slf4j
 public class CompanyDao {
 
     private final JdbcTemplate jdbc;
-
-    public CompanyDao(JdbcTemplate jdbc) {
-        this.jdbc = jdbc;
-    }
+    private final StringUtilService stringUtilService;
 
     private final RowMapper<Company> mapper = (rs, rowNum) -> {
         Company c = new Company();
@@ -33,6 +36,7 @@ public class CompanyDao {
               FROM app_company
              WHERE id = ?
         """;
+        log.info(stringUtilService.formatSql(sql));
         return jdbc.query(sql, mapper, id).stream().findFirst();
     }
 
@@ -42,6 +46,7 @@ public class CompanyDao {
               FROM app_company
              WHERE cnpj = ?
         """;
+        log.info(stringUtilService.formatSql(sql));
         return jdbc.query(sql, mapper, cnpj).stream().findFirst();
     }
 
@@ -52,6 +57,7 @@ public class CompanyDao {
              ORDER BY id DESC
              LIMIT ? OFFSET ?
         """;
+        log.info(stringUtilService.formatSql(sql));
         return jdbc.query(sql, mapper, limit, offset);
     }
 
@@ -61,6 +67,7 @@ public class CompanyDao {
             VALUES (?, ?)
             RETURNING id
         """;
+        log.info(stringUtilService.formatSql(sql));
         return jdbc.queryForObject(sql, Long.class, c.getName(), c.getCnpj());
     }
 
@@ -71,17 +78,22 @@ public class CompanyDao {
                    cnpj = ?
              WHERE id = ?
         """;
+        log.info(stringUtilService.formatSql(sql));
         return jdbc.update(sql, c.getName(), c.getCnpj(), c.getId());
     }
 
     public int deleteById(Long id) {
         String sql = "DELETE FROM app_company WHERE id = ?";
+        log.info(stringUtilService.formatSql(sql));
         return jdbc.update(sql, id);
     }
 
     public boolean existsByCnpj(String cnpj) {
         String sql = "SELECT EXISTS (SELECT 1 FROM app_company WHERE cnpj = ?)";
+        log.info(stringUtilService.formatSql(sql));
         Boolean exists = jdbc.queryForObject(sql, Boolean.class, cnpj);
         return Boolean.TRUE.equals(exists);
     }
+
+
 }

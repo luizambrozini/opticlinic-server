@@ -1,10 +1,12 @@
 package tec.br.opticlinic.api.infra.dao;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+import tec.br.opticlinic.api.application.util.StringUtilService;
 import tec.br.opticlinic.api.infra.model.User;
 
 import java.sql.ResultSet;
@@ -13,13 +15,11 @@ import java.time.OffsetDateTime;
 import java.util.*;
 
 @Repository
+@AllArgsConstructor
 @Slf4j
 public class UserDao {
     private final JdbcTemplate jdbc;
-
-    public UserDao(JdbcTemplate jdbc) {
-        this.jdbc = jdbc;
-    }
+    private final StringUtilService stringUtilService;
 
     private final RowMapper<User> mapper = (rs, rowNum) -> {
         User u = new User();
@@ -35,12 +35,13 @@ public class UserDao {
 
     public Optional<User> findById(Long id) {
         String sql = "SELECT id, username, password, enabled, created_at FROM app_user WHERE id = ?";
+        log.info(stringUtilService.formatSql(sql));
         return jdbc.query(sql, mapper, id).stream().findFirst();
     }
 
     public Optional<User> findByUsername(String username) {
         String sql = "SELECT id, username, password, enabled, created_at FROM app_user WHERE username = ?";
-        log.debug(sql);
+        log.info(stringUtilService.formatSql(sql));
         return jdbc.query(sql, mapper, username).stream().findFirst();
     }
 
@@ -51,6 +52,7 @@ public class UserDao {
              ORDER BY id DESC
              LIMIT ? OFFSET ?
         """;
+        log.info(stringUtilService.formatSql(sql));
         return jdbc.query(sql, mapper, limit, offset);
     }
 
@@ -64,6 +66,7 @@ public class UserDao {
             RETURNING id
         """;
         // 3 parâmetros: username, password, enabled
+        log.info(stringUtilService.formatSql(sql));
         return jdbc.queryForObject(sql, Long.class, u.getUsername(), u.getPassword(), u.getEnabled());
     }
 
@@ -76,23 +79,27 @@ public class UserDao {
                    enabled  = COALESCE(?, enabled)
              WHERE id = ?
         """;
+        log.info(stringUtilService.formatSql(sql));
         return jdbc.update(sql, u.getUsername(), u.getPassword(), u.getEnabled(), u.getId());
     }
 
     // Corrigido: nome e semântica alinham
     public int deleteById(Long id) {
         String sql = "DELETE FROM app_user WHERE id = ?";
+        log.info(stringUtilService.formatSql(sql));
         return jdbc.update(sql, id);
     }
 
     // Se quiser deletar por username, use este:
     public int deleteByUsername(String username) {
         String sql = "DELETE FROM app_user WHERE username = ?";
+        log.info(stringUtilService.formatSql(sql));
         return jdbc.update(sql, username);
     }
 
     public boolean existsByUsername(String username) {
         String sql = "SELECT EXISTS (SELECT 1 FROM app_user WHERE username = ?)";
+        log.info(stringUtilService.formatSql(sql));
         Boolean exists = jdbc.queryForObject(sql, Boolean.class, username);
         return Boolean.TRUE.equals(exists);
     }

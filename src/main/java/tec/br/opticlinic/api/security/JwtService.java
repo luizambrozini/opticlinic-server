@@ -25,10 +25,10 @@ public class JwtService {
         this.expirationMs = expirationMs;
     }
 
-    public String generateToken(String subject, Map<String, Object> claims) {
+    public String generateToken(Long subject, Map<String, Object> claims) {
         long now = System.currentTimeMillis();
         return Jwts.builder()
-                .subject(subject)
+                .subject(subject.toString())
                 .claims(claims)
                 .issuedAt(new Date(now))
                 .expiration(new Date(now + expirationMs))
@@ -36,12 +36,13 @@ public class JwtService {
                 .compact();
     }
 
-    public String extractSubject(String token) {
-        return Jwts.parser()
+    public Long extractSubject(String token) {
+        var subjectString =  Jwts.parser()
                 .verifyWith(key)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload()
                 .getSubject();
+        return Long.parseLong(subjectString);
     }
 }

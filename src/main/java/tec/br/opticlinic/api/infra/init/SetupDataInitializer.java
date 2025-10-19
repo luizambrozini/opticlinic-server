@@ -9,6 +9,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import tec.br.opticlinic.api.infra.dao.CompanyDao;
+import tec.br.opticlinic.api.infra.dao.UserDao;
+import tec.br.opticlinic.api.infra.model.Company;
+import tec.br.opticlinic.api.infra.model.User;
 
 @Slf4j
 @Component
@@ -18,6 +22,8 @@ public class SetupDataInitializer implements ApplicationRunner {
 
     private final JdbcTemplate jdbc;
     private final PasswordEncoder passwordEncoder;
+    private final UserDao userDao;
+    private final CompanyDao companyDao;
 
     @Override
     @Transactional
@@ -43,35 +49,31 @@ public class SetupDataInitializer implements ApplicationRunner {
     }
 
     private void ensureCompany(String name, String cnpj) {
-        Integer count = jdbc.queryForObject(
-                "SELECT COUNT(*) FROM app_company WHERE cnpj = ?", Integer.class, cnpj);
-        if (count != null && count > 0) {
-            log.debug("Empresa já existe (cnpj={}).", cnpj);
+        var companyOpt = companyDao.findById(1L);
+        if (companyOpt.isPresent()) {
+            log.debug("Empresa já existe ({} / {}).", name, cnpj);
             return;
         }
-        jdbc.update("INSERT INTO app_company (name, cnpj) VALUES (?, ?)", name, cnpj);
+        var newCompany = new Company();
+        newCompany.setName(name);
+        newCompany.setCnpj(cnpj);
+        companyDao.insert(newCompany);
         log.info("Empresa criada ({} / {}).", name, cnpj);
     }
 
     private void ensureUser(String username, String rawPassword) {
-        Integer count = jdbc.queryForObject(
-                "SELECT COUNT(*) FROM app_user WHERE username = ?", Integer.class, username);
-        if (count != null && count > 0) {
+        var userOpt = userDao.findByUsername(username);
+        if (userOpt.isPresent()) {
             log.debug("Usuário já existe ({}).", username);
             return;
         }
-        String encoded = ensureHasIdPrefix(passwordEncoder.encode(rawPassword));
-        jdbc.update(
-                "INSERT INTO app_user (username, password, enabled) VALUES (?, ?, TRUE)",
-                username, encoded
-        );
+        String encodedPassword = passwordEncoder.encode(rawPassword);
+        var newUser = new User();
+        newUser.setUsername(username);
+        newUser.setPassword(encodedPassword);
+        newUser.setEnabled(true);
+        userDao.insert(newUser);
         log.info("Usuário criado ({}).", username);
-    }
-
-    private String ensureHasIdPrefix(String encoded) {
-        // DelegatingPasswordEncoder já aplica prefixo {bcrypt}/{pbkdf2} etc.
-        // Se seu encoder custom não aplicar, garanta aqui (ex.: prefixar {bcrypt}).
-        return encoded.startsWith("{") ? encoded : "{bcrypt}" + encoded;
     }
 
     private void ensureAuthority(String username, String authority) {

@@ -1,5 +1,6 @@
 package tec.br.opticlinic.api.infra.dao;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -12,6 +13,7 @@ import java.time.OffsetDateTime;
 import java.util.*;
 
 @Repository
+@Slf4j
 public class UserDao {
     private final JdbcTemplate jdbc;
 
@@ -38,6 +40,7 @@ public class UserDao {
 
     public Optional<User> findByUsername(String username) {
         String sql = "SELECT id, username, password, enabled, created_at FROM app_user WHERE username = ?";
+        log.debug(sql);
         return jdbc.query(sql, mapper, username).stream().findFirst();
     }
 

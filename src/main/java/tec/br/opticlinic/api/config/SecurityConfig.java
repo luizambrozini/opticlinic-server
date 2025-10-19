@@ -51,10 +51,11 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService userDetailsService(JdbcTemplate jdbc) {
 
-        record DbUser(String username, String password, boolean enabled) {}
+        record DbUser(Long id,String username, String password, boolean enabled) {}
 
         RowMapper<DbUser> userRowMapper = (rs, rn) ->
                 new DbUser(
+                        rs.getLong("id"),
                         rs.getString("username"),
                         rs.getString("password"),
                         rs.getBoolean("enabled")
@@ -68,7 +69,7 @@ public class SecurityConfig {
             DbUser dbUser;
             try {
                 dbUser = jdbc.queryForObject(
-                        "SELECT username, password, enabled FROM app_user WHERE username = ?",
+                        "SELECT id, username, password, enabled FROM app_user WHERE username = ?",
                         userRowMapper,
                         username
                 );

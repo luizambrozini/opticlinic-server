@@ -12,6 +12,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import tec.br.opticlinic.api.infra.dao.UserDao;
 
 import java.io.IOException;
 
@@ -20,10 +21,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private final UserDao userDao;
 
-    public JwtAuthFilter(JwtService jwtService, UserDetailsService userDetailsService) {
+    public JwtAuthFilter(JwtService jwtService, UserDetailsService userDetailsService, UserDao userDao) {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
+        this.userDao = userDao;
     }
 
     @Override
@@ -35,7 +38,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (StringUtils.hasText(authHeader) && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
             try {
-                String username = jwtService.extractSubject(token);
+                Long userId = jwtService.extractSubject(token);
+                var userOptional = userDao.findById(userId);
+                if (userOptional.isEmpty()) {
+                    filterChain.doFilter(request, response);
+                    return;
+                }
+                String username = userOptional.get().getUsername();
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                     UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                     UsernamePasswordAuthenticationToken authToken =

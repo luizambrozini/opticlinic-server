@@ -6,7 +6,7 @@ import tec.br.opticlinic.api.infra.dao.CompanyDao;
 import tec.br.opticlinic.api.infra.model.Company;
 import tec.br.opticlinic.api.web.dto.response.CompanyShortResponse;
 import tec.br.opticlinic.api.web.error.ErrorCode;
-import tec.br.opticlinic.api.web.error.NotFoundException;
+import tec.br.opticlinic.api.web.error.exception.NotFoundException;
 
 @Service
 @RequiredArgsConstructor

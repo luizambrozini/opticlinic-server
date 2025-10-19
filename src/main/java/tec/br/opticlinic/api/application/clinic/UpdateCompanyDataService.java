@@ -5,9 +5,9 @@ import org.springframework.stereotype.Service;
 import tec.br.opticlinic.api.application.util.DocumentUtilService;
 import tec.br.opticlinic.api.infra.dao.CompanyDao;
 import tec.br.opticlinic.api.infra.model.Company;
-import tec.br.opticlinic.api.web.error.BadRequestException;
+import tec.br.opticlinic.api.web.error.exception.BadRequestException;
 import tec.br.opticlinic.api.web.error.ErrorCode;
-import tec.br.opticlinic.api.web.error.NotFoundException;
+import tec.br.opticlinic.api.web.error.exception.NotFoundException;
 
 @Service
 @RequiredArgsConstructor

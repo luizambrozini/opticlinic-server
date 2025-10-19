@@ -2,8 +2,10 @@ package tec.br.opticlinic.api.application.clinic;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import tec.br.opticlinic.api.application.util.DocumentUtilService;
 import tec.br.opticlinic.api.infra.dao.CompanyDao;
 import tec.br.opticlinic.api.infra.model.Company;
+import tec.br.opticlinic.api.web.error.BadRequestException;
 import tec.br.opticlinic.api.web.error.ErrorCode;
 import tec.br.opticlinic.api.web.error.NotFoundException;
 
@@ -12,6 +14,7 @@ import tec.br.opticlinic.api.web.error.NotFoundException;
 public class UpdateCompanyDataService {
 
     private final CompanyDao companyDao;
+    private final DocumentUtilService documentUtilService;
 
     public void execute(String name, String cnpj) throws Exception {
         var companyOptional = companyDao.findById(1L);
@@ -34,6 +37,9 @@ public class UpdateCompanyDataService {
 
     private void changeCnpj(Company company, String newCnpj) {
         if (company.getCnpj() == null || !company.getCnpj().equals(newCnpj)) {
+            if (!documentUtilService.verifyCnpj(newCnpj)) {
+                throw new BadRequestException(ErrorCode.VALIDATION_ERROR,"CNPJ inválido.");
+            }
             company.setCnpj(newCnpj);
         }
     }

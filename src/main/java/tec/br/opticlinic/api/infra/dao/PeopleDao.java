@@ -26,7 +26,7 @@ public class PeopleDao {
         p.setEmail(rs.getString("email"));
         p.setCreatedAt(rs.getObject("created_at", OffsetDateTime.class));
         Long companyId = rs.getObject("company_id") == null ? null : rs.getLong("company_id");
-        p.setCompanyId(companyId);
+        //p.setCompanyId(companyId);
         return p;
     };
 
@@ -85,7 +85,7 @@ public class PeopleDao {
             RETURNING id
         """;
         return jdbc.queryForObject(sql, Long.class,
-                p.getName(), p.getCpf(), p.getEmail(), p.getCompanyId());
+                p.getName(), p.getCpf(), p.getEmail());
     }
 
     public int update(People p) {
@@ -98,7 +98,7 @@ public class PeopleDao {
              WHERE id = ?
         """;
         return jdbc.update(sql,
-                p.getName(), p.getCpf(), p.getEmail(), p.getCompanyId(), p.getId());
+                p.getName(), p.getCpf(), p.getEmail(), p.getId());
     }
 
     public int deleteById(Long id) {

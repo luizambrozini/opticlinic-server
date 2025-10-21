@@ -1,25 +1,29 @@
 package tec.br.opticlinic.api.infra.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "app_company")
-@Getter
-@Setter
+@Getter @Setter
 public class Company {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, unique = true, length = 150)
     private String name;
 
-    @Column(length = 50, nullable = false)
+    @Column(length = 20, nullable = false, unique = true) // CNPJ costuma ter 14 dígitos (sem máscara)
     private String cnpj;
 
-    @Column(name = "created_at", nullable = false)
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
+
+    @Version
+    private Long version;
 }

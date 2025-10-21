@@ -3,8 +3,8 @@ package tec.br.opticlinic.api.application.clinic;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tec.br.opticlinic.api.application.util.DocumentUtilService;
-import tec.br.opticlinic.api.infra.dao.CompanyDao;
 import tec.br.opticlinic.api.infra.model.Company;
+import tec.br.opticlinic.api.infra.repository.CompanyRepository;
 import tec.br.opticlinic.api.web.error.exception.BadRequestException;
 import tec.br.opticlinic.api.web.error.ErrorCode;
 import tec.br.opticlinic.api.web.error.exception.NotFoundException;
@@ -13,11 +13,11 @@ import tec.br.opticlinic.api.web.error.exception.NotFoundException;
 @RequiredArgsConstructor
 public class UpdateCompanyDataService {
 
-    private final CompanyDao companyDao;
+    private final CompanyRepository companyRepository;
     private final DocumentUtilService documentUtilService;
 
     public void execute(String name, String cnpj) throws Exception {
-        var companyOptional = companyDao.findById(1L);
+        var companyOptional = companyRepository.findById(1L);
         if (companyOptional.isEmpty()) {
             throw new NotFoundException(ErrorCode.COMPANY_NOT_FOUND, "Empresa (id=1) não encontrada.");
         }
@@ -26,7 +26,7 @@ public class UpdateCompanyDataService {
         changeName(company, name);
         changeCnpj(company, cnpj);
 
-        companyDao.update(company);
+        companyRepository.save(company);
     }
 
     private void changeName(Company company, String newName) {

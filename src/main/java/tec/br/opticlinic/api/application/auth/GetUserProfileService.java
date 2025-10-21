@@ -2,7 +2,7 @@ package tec.br.opticlinic.api.application.auth;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import tec.br.opticlinic.api.infra.dao.UserDao;
+import tec.br.opticlinic.api.infra.repository.UserRepository;
 import tec.br.opticlinic.api.web.dto.response.UserProfieResponse;
 import tec.br.opticlinic.api.web.error.ErrorCode;
 import tec.br.opticlinic.api.web.error.exception.BadRequestException;
@@ -11,10 +11,10 @@ import tec.br.opticlinic.api.web.error.exception.BadRequestException;
 @RequiredArgsConstructor
 public class GetUserProfileService {
 
-    private final UserDao userDao;
+    private final UserRepository userRepository;
 
     public UserProfieResponse execute(Long id) {
-        var userOptional = userDao.findById(id);
+        var userOptional = userRepository.findById(id);
         if (userOptional.isEmpty()) {
             throw new BadRequestException(ErrorCode.USER_NOT_FOUND,"User not found");
         }
@@ -25,7 +25,7 @@ public class GetUserProfileService {
     }
 
     public UserProfieResponse execute(String username) {
-        var userOptional = userDao.findByUsername(username);
+        var userOptional = userRepository.findByUsername(username);
         if (userOptional.isEmpty()) {
             throw new BadRequestException(ErrorCode.USER_NOT_FOUND,"User not found");
         }

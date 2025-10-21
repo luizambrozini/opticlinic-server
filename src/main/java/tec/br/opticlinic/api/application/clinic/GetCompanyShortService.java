@@ -1,6 +1,7 @@
 package tec.br.opticlinic.api.application.clinic;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tec.br.opticlinic.api.infra.model.Company;
 import tec.br.opticlinic.api.infra.repository.CompanyRepository;
@@ -9,10 +10,10 @@ import tec.br.opticlinic.api.web.error.ErrorCode;
 import tec.br.opticlinic.api.web.error.exception.NotFoundException;
 
 @Service
-@RequiredArgsConstructor
 public class GetCompanyShortService {
 
-    private final CompanyRepository companyRepository;
+    @Autowired
+    private CompanyRepository companyRepository;
 
     public CompanyShortResponse execute() {
         var companyOptional = companyRepository.findById(1L);

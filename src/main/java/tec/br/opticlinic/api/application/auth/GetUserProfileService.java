@@ -1,6 +1,7 @@
 package tec.br.opticlinic.api.application.auth;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tec.br.opticlinic.api.infra.repository.UserRepository;
 import tec.br.opticlinic.api.web.dto.response.UserProfieResponse;
@@ -8,10 +9,10 @@ import tec.br.opticlinic.api.web.error.ErrorCode;
 import tec.br.opticlinic.api.web.error.exception.BadRequestException;
 
 @Service
-@RequiredArgsConstructor
 public class GetUserProfileService {
 
-    private final UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     public UserProfieResponse execute(Long id) {
         var userOptional = userRepository.findById(id);

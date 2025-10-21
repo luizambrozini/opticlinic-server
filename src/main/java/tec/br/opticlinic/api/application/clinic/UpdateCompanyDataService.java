@@ -1,6 +1,7 @@
 package tec.br.opticlinic.api.application.clinic;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tec.br.opticlinic.api.application.util.DocumentUtilService;
 import tec.br.opticlinic.api.infra.model.Company;
@@ -10,11 +11,12 @@ import tec.br.opticlinic.api.web.error.ErrorCode;
 import tec.br.opticlinic.api.web.error.exception.NotFoundException;
 
 @Service
-@RequiredArgsConstructor
 public class UpdateCompanyDataService {
 
-    private final CompanyRepository companyRepository;
-    private final DocumentUtilService documentUtilService;
+    @Autowired
+    private CompanyRepository companyRepository;
+    @Autowired
+    private DocumentUtilService documentUtilService;
 
     public void execute(String name, String cnpj) throws Exception {
         var companyOptional = companyRepository.findById(1L);

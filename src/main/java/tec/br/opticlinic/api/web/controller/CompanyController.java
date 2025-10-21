@@ -2,6 +2,7 @@ package tec.br.opticlinic.api.web.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,11 +13,12 @@ import tec.br.opticlinic.api.web.dto.response.CompanyShortResponse;
 
 @RestController
 @RequestMapping(value = "/api/company", produces = MediaType.APPLICATION_JSON_VALUE)
-@RequiredArgsConstructor
 public class CompanyController {
 
-    private final UpdateCompanyDataService updateCompanyDataService;
-    private final GetCompanyShortService getCompanyShortService;
+    @Autowired
+    private UpdateCompanyDataService updateCompanyDataService;
+    @Autowired
+    private GetCompanyShortService getCompanyShortService;
 
     @GetMapping(value = "get-company")
     public ResponseEntity<CompanyShortResponse> getCompany() throws Exception {

@@ -26,7 +26,7 @@ public class CompanyController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping(value = "/update-company", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "update-company", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> updateCompany(@Valid @RequestBody UpdateCompanyRequest body) throws Exception {
         updateCompanyDataService.execute(body.getName(), body.getCnpj());
         return ResponseEntity.noContent().build(); // 204

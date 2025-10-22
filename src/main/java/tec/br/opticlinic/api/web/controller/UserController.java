@@ -1,12 +1,11 @@
 package tec.br.opticlinic.api.web.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tec.br.opticlinic.api.application.auth.GetUserProfileService;
-import tec.br.opticlinic.api.application.user.GetUserListService;
+import tec.br.opticlinic.api.application.user.get_user_list.GetUserListService;
 import tec.br.opticlinic.api.web.dto.response.UserListResponse;
 
 @RestController

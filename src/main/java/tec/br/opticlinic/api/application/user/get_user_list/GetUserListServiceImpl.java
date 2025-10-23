@@ -1,4 +1,4 @@
-package tec.br.opticlinic.api.application.user;
+package tec.br.opticlinic.api.application.user.get_user_list;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -7,7 +7,6 @@ import tec.br.opticlinic.api.infra.repository.UserRepository;
 import tec.br.opticlinic.api.web.dto.response.UserListResponse;
 import tec.br.opticlinic.api.web.dto.response.UserShortResponse;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service

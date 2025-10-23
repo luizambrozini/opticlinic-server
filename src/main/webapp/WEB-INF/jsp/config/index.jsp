@@ -91,7 +91,9 @@
             <button class="btn btn-primary" type="submit">Salvar alterações</button>
           </div>
         </form>
+        <hr />
       </div>
+
     </div>
   </div>
 

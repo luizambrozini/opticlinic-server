@@ -1,7 +1,6 @@
-package tec.br.opticlinic.api.web.controller;
+package tec.br.opticlinic.api.web.controller.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

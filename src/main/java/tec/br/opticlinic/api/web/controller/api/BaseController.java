@@ -1,4 +1,4 @@
-package tec.br.opticlinic.api.web.controller;
+package tec.br.opticlinic.api.web.controller.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import tec.br.opticlinic.api.security.JwtUtil;

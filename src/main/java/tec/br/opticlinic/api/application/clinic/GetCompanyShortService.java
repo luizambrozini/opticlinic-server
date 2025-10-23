@@ -28,4 +28,13 @@ public class GetCompanyShortService {
                 company.getCnpj()
         );
     }
+
+    public Company executeApp() {
+        var companyOptional = companyRepository.findById(1L);
+        if (companyOptional.isEmpty()) {
+            throw new NotFoundException(ErrorCode.COMPANY_NOT_FOUND, "Empresa (id=1) não encontrada.");
+        }
+
+        return companyOptional.get();
+    }
 }

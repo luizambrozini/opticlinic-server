@@ -8,13 +8,38 @@
 
 <c:set var="uri" value="${pageContext.request.requestURI}" />
 
+<style>
+
+    .logo {
+        display: flex;
+        align-items: center;
+        justify: center;
+        gap: 8px;
+
+        text-decoration: none;
+        margin-right: 16px;
+
+    }
+    .logo_name {
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 20px;
+        letter-spacing: 2px;
+        margin: 0;
+    }
+
+</style>
+
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
   <div class="container-fluid">
     <!-- Logo / Título -->
-    <a class="navbar-brand fw-semibold d-flex align-items-center gap-2" href="/app" style="letter-spacing:.2px;">
-      <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-light text-primary fw-bold"
-            style="width:28px;height:28px;font-size:.9rem;border:1px solid rgba(255,255,255,.6);">O</span>
-      Opticlinic
+    <a class="logo" href="/app">
+      <p class="logo_name">
+        Opticlinic
+      </p>
     </a>
 
     <!-- Botão de colapso (mobile) -->
@@ -27,13 +52,11 @@
     <div class="collapse navbar-collapse" id="navbarContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link ${fn:startsWith(uri, '/app/dashboard') ? '' : 'active'}" href="/app">Início</a>
+          <a class="nav-link ${fn:startsWith(uri, '/WEB-INF/jsp/home.jsp') ? 'active' : ''}" href="/app">Início</a>
         </li>
+
         <li class="nav-item">
-          <a class="nav-link ${fn:startsWith(uri, '/app/dashboard') ? 'active' : ''}" href="/app/dashboard">Dashboard</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link ${fn:startsWith(uri, '/app/config') ? 'active' : ''}" href="/app/config">Configurações</a>
+          <a class="nav-link ${fn:startsWith(uri, '/WEB-INF/jsp/config/index.jsp') ? 'active' : ''}" href="/app/config">Configurações</a>
         </li>
         <!-- Adicione outros itens aqui -->
       </ul>

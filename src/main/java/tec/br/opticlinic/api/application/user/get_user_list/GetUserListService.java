@@ -4,4 +4,5 @@ import tec.br.opticlinic.api.web.dto.response.UserListResponse;
 
 public interface GetUserListService {
     UserListResponse execute(Integer page, Integer limit);
+    UserListResponse executeApp(Integer page, Integer limit);
 }
